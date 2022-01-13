@@ -1,0 +1,11 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicySet
+metadata:
+  name: policyset-openshift-plus-hub
+spec:
+  description: Policies OpenShift Plus components that run exclusively on the open cluster management hub.
+  policies:
+  - policy-acs-operator-central
+  - policy-config-quay
+  - policy-object-storage
+  - policy-odf

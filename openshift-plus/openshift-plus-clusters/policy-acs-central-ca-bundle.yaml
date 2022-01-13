@@ -1,0 +1,60 @@
+# This policy installs the Advanced Cluster Security Operator on the ACM hub
+# cluster and it create the Central Server.
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-acs-central-ca-bundle
+  annotations:
+    policy.open-cluster-management.io/standards: NIST SP 800-53
+    policy.open-cluster-management.io/categories: CM Configuration Management
+    policy.open-cluster-management.io/controls: CM-2 Baseline Configuration
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: acs-ca-bundle-copy
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data:
+                admission-control-cert.pem: '{{hub fromSecret "" "admission-control-tls" "admission-control-cert.pem" hub}}'
+                admission-control-key.pem: '{{hub fromSecret "" "admission-control-tls" "admission-control-key.pem" hub}}'
+                ca.pem: '{{hub fromSecret "" "admission-control-tls" "ca.pem" hub}}'
+              kind: Secret
+              metadata:
+                name: admission-control-tls
+                namespace: policies
+              type: Opaque
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data:
+                collector-cert.pem: '{{hub fromSecret "" "collector-tls" "collector-cert.pem" hub}}'
+                collector-key.pem: '{{hub fromSecret "" "collector-tls" "collector-key.pem" hub}}'
+                ca.pem: '{{hub fromSecret "" "collector-tls" "ca.pem" hub}}'
+              kind: Secret
+              metadata:
+                name: collector-tls
+                namespace: policies
+              type: Opaque
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              data:
+                sensor-cert.pem: '{{hub fromSecret "" "sensor-tls" "sensor-cert.pem" hub}}'
+                sensor-key.pem: '{{hub fromSecret "" "sensor-tls" "sensor-key.pem" hub}}'
+                ca.pem: '{{hub fromSecret "" "sensor-tls" "ca.pem" hub}}'
+                acs-host: '{{hub fromSecret "" "sensor-tls" "acs-host" hub}}'
+              kind: Secret
+              metadata:
+                name: sensor-tls
+                namespace: policies
+              type: Opaque

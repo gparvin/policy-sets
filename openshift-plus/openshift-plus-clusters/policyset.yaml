@@ -1,0 +1,10 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicySet
+metadata:
+  name: policyset-openshift-plus-clusters
+spec:
+  description: Policies that install OpenShift Plus components that run on OpenShift managed clusters.
+  policies:
+  - policy-advanced-managed-cluster-security
+  - policy-compliance-operator-install
+  - policy-acs-central-ca-bundle

@@ -1,0 +1,95 @@
+# policy that installs OCS operator, then just the Noobaa (object storage) component:
+# https://github.com/pittar-demos/acm-demo/blob/main/acm/noobaa-operator/policy/noobaa-policy.yaml
+# I basically just used the instructions from the Quay docs to deploy a stand-alone object gateway.
+# https://access.redhat.com/documentation/en-us/red_hat_quay/3.6/html/deploy_red_hat_qu[…]ay_on_openshift_with_the_quay_operator/operator-preconfigure
+
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-object-storage
+  annotations:
+    policy.open-cluster-management.io/standards: Storage
+    policy.open-cluster-management.io/categories: Object
+    policy.open-cluster-management.io/controls: S3 Compatible
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: object-storage-noobaa-deployment
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: noobaa.io/v1alpha1
+              kind: NooBaa
+              metadata:
+                name: noobaa
+                namespace: openshift-storage
+              spec:
+              dbResources:
+                requests:
+                  cpu: '0.1'
+                  memory: 1Gi
+              dbType: postgres
+              coreResources:
+                requests:
+                  cpu: '0.1'
+                  memory: 1Gi
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: object-storage-backing-store
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: noobaa.io/v1alpha1
+              kind: BackingStore
+              metadata:
+                finalizers:
+                - noobaa.io/finalizer
+                labels:
+                  app: noobaa
+                name: noobaa-pv-backing-store
+                namespace: openshift-storage
+              spec:
+                pvPool:
+                  numVolumes: 1
+                  resources:
+                    requests:
+                      storage: 50Gi
+                type: pv-pool
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: object-storage-default-class
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: noobaa.io/v1alpha1
+              kind: BucketClass
+              metadata:
+                name: noobaa-default-bucket-class
+                namespace: openshift-storage
+                labels:
+                  app: noobaa
+                annotations:
+                  apps.open-cluster-management.io/reconcile-option: replace
+              spec:
+                placementPolicy:
+                  tiers:
+                    - backingStores:
+                        - noobaa-pv-backing-store
