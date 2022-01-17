@@ -60,10 +60,12 @@ spec:
                 apiVersion: operators.coreos.com/v1alpha1
                 kind: Subscription
                 metadata:
+                  labels:
+                    operators.coreos.com/quay-operator.local-quay: ""
                   name: quay-operator
                   namespace: local-quay
                 spec:
-                  channel: stable-v3.6
+                  channel: stable-3.6
                   installPlanApproval: Automatic
                   name: quay-operator
                   source: redhat-operators
@@ -76,12 +78,17 @@ spec:
         spec:
           remediationAction: inform
           severity: low
-          namespaceSelector:
-            exclude:
-              - kube-*
-            include:
-              - default
           object-templates:
+            - complianceType: musthave
+              objectDefinition:
+                apiVersion: v1
+                data:
+                  config.yaml: RkVBVFVSRV9VU0VSX0lOSVRJQUxJWkU6IHRydWUKQlJPV1NFUl9BUElfQ0FMTFNfWEhSX09OTFk6IGZhbHNlClNVUEVSX1VTRVJTOgotIHF1YXlhZG1pbgpGRUFUVVJFX1VTRVJfQ1JFQVRJT046IGZhbHNlCg==
+                kind: Secret
+                metadata:
+                  name: init-config-bundle-secret
+                  namespace: local-quay
+                type: Opaque
             - complianceType: musthave
               objectDefinition:
                 apiVersion: quay.redhat.com/v1
@@ -90,6 +97,7 @@ spec:
                   name: registry
                   namespace: local-quay
                 spec:
+                  configBundleSecret: init-config-bundle-secret
                   components:
                     - kind: objectstorage
                       managed: true
