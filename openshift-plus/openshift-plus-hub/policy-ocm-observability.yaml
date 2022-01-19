@@ -1,0 +1,59 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: Policy
+metadata:
+  name: policy-ocm-observability
+  annotations:
+    policy.open-cluster-management.io/standards: Storage
+    policy.open-cluster-management.io/categories: Object
+    policy.open-cluster-management.io/controls: S3 Compatible
+spec:
+  remediationAction: enforce
+  disabled: false
+  policy-templates:
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ocm-observability-storage
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: v1
+              kind: Secret
+              metadata:
+                name: thanos-object-storage
+                namespace: open-cluster-management-observability
+              type: Opaque
+              stringData:
+                thanos.yaml: |
+                  type: s3
+                  config:
+                    bucket: first.bucket
+                    endpoint: {{ (index (lookup "noobaa.io/v1alpha1" "NooBaa" "openshift-storage" "noobaa").status.endpoints.virtualHosts 1) }}
+                    insecure: true
+                    access_key: {{ fromSecret "openshift-storage" "noobaa-admin" "AWS_ACCESS_KEY_ID" | base64dec }}
+                    secret_key: {{ fromSecret "openshift-storage" "noobaa-admin" "AWS_SECRET_ACCESS_KEY" | base64dec }}
+  - objectDefinition:
+      apiVersion: policy.open-cluster-management.io/v1
+      kind: ConfigurationPolicy
+      metadata:
+        name: ocm-observability-spec
+      spec:
+        remediationAction: inform
+        severity: high
+        object-templates:
+          - complianceType: musthave
+            objectDefinition:
+              apiVersion: observability.open-cluster-management.io/v1beta2
+              kind: MultiClusterObservability
+              metadata:
+                name: observability
+              spec:
+                observabilityAddonSpec: {}
+                storageConfig:
+                  metricObjectStorage:
+                    name: thanos-object-storage
+                    key: thanos.yaml
