@@ -1,0 +1,51 @@
+apiVersion: policy.open-cluster-management.io/v1
+kind: PolicyGenerator
+metadata:
+  name: policy-openshift-plus-hub
+placementBindingDefaults:
+  name: binding-policy-openshift-plus-hub
+policyDefaults:
+  categories:
+    - CM Configuration Management
+  controls: 
+    - CM-2 Baseline Configuration
+  namespace: policies
+  # Use an existing placement rule so that placement bindings can be consolidated
+  placement:
+    placementPath: input/placement.yaml
+  remediationAction: enforce
+  severity: medium
+  standards:
+    - NIST SP 800-53
+policies:
+- name: policy-ocm-observability
+  categories:
+    - CA Assessment, Authorization and Monitoring
+  controls: 
+    - CA-7 Continuous Monitoring
+  disabled: false
+  manifests:
+    - path: input-acm-observability/
+- name: policy-acs-operator-central
+  categories:
+    - SC System and Communications Protection
+  controls: 
+    - SC-1 Policy and Procedures
+  disabled: true
+  manifests:
+    - path: input-acs-central/
+- name: policy-odf
+  categories:
+    - SI System and Information Integrity
+  controls: 
+    - SI-7 Software, Firmware, and Information Integrity
+  disabled: true
+  manifests:
+    - path: input-odf/
+- name: policy-config-quay
+  categories:
+    - SI System and Information Integrity
+  controls: 
+    - SI-7 Software, Firmware, and Information Integrity
+  manifests:
+    - path: input-quay/
