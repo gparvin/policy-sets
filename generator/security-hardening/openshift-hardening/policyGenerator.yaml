@@ -58,10 +58,10 @@ policies:
   manifests:
     - path: input-compliance/policy-compliance-operator-scan-results.yaml
   remediationAction: "inform"
-- name: policy-etcd-backup
-  manifests:
-    - path: input-etcd/policy-etcd-backup.yaml
-  remediationAction: "enforce"
+#- name: policy-etcd-backup
+#  manifests:
+#    - path: input-etcd/policy-etcd-backup.yaml
+#  remediationAction: "enforce"
 - name: policy-etcdencryption
   categories:
     - SC System and Communications Protection
