@@ -1,9 +1,9 @@
 apiVersion: policy.open-cluster-management.io/v1
 kind: PolicyGenerator
 metadata:
-  name: policy-openshift-plus-clusters
+  name: policy-acm-hardening
 placementBindingDefaults:
-  name: binding-policy-openshift-plus-clusters
+  name: binding-policy-acm-hardening
 policyDefaults:
   categories:
     - CM Configuration Management
