@@ -1,7 +1,7 @@
 apiVersion: policy.open-cluster-management.io/v1
 kind: PolicyGenerator
 metadata:
-  name: policy-openshift-plus-hub
+  name: policy-openshift-plus
 placementBindingDefaults:
   name: binding-policy-openshift-plus-hub
 policyDefaults:
@@ -12,7 +12,9 @@ policyDefaults:
   namespace: policies
   # Use an existing placement rule so that placement bindings can be consolidated
   placement:
-    placementPath: input/placement.yaml
+    placementPath: input/hub-placement.yaml
+  policySet:
+    - openshift-plus-hub
   remediationAction: enforce
   severity: medium
   standards:
@@ -49,3 +51,38 @@ policies:
     - SI-7 Software, Firmware, and Information Integrity
   manifests:
     - path: input-quay/
+- name: policy-compliance-operator-install
+  categories:
+    - CA Security Assessment and Authorization
+  controls:
+    - CA-2 Security Assessments, CA-7 Continuous Monitoring
+  disabled: false
+  manifests:
+    - path: input-compliance/
+  policySet:
+    - openshift-plus-clusters
+- name: policy-advanced-managed-cluster-security
+  categories:
+    - SI System and Information Integrity
+  controls:
+    - SI-5 Security Alerts, Advisories, and Directives
+  disabled: true
+  manifests:
+    - path: input-sensor/
+  policySet:
+    - openshift-plus-clusters
+policySets:
+  - name: openshift-plus-hub
+    placement:
+      placementPath: input/hub-placement.yaml
+    policies:
+      - policy-ocm-observability
+      - policy-acs-operator-central
+      - policy-odf
+      - policy-config-quay
+  - name: openshift-plus-clusters
+    placement:
+      placementPath: input/clusters-placement.yaml
+    policies:
+      - policy-advanced-managed-cluster-security
+      - policy-compliance-operator-install

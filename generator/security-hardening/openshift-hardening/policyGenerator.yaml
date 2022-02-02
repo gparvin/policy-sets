@@ -10,9 +10,10 @@ policyDefaults:
   controls: 
     - CM-2 Baseline Configuration
   namespace: policies
-  # Use an existing placement rule so that placement bindings can be consolidated
   placement:
     placementPath: input/placement.yaml
+  policySets:
+    - openshift-hardening
   remediationAction: enforce
   severity: medium
   standards:
@@ -108,3 +109,7 @@ policies:
   manifests:
     - path: input-scc/
   remediationAction: "inform"
+policySets:
+  - name: openshift-hardening
+    placement:
+      placementPath: input/placement.yaml

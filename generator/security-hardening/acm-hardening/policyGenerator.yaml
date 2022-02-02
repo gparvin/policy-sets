@@ -13,6 +13,8 @@ policyDefaults:
   # Use an existing placement rule so that placement bindings can be consolidated
   placement:
     placementPath: input/placement.yaml
+  policySets:
+    - acm-hardening
   remediationAction: enforce
   severity: medium
   standards:
@@ -68,3 +70,7 @@ policies:
     exclude:
       - "openshift*"
   remediationAction: "inform"
+policySets:
+  - name: acm-hardening
+    placement:
+      placementPath: input/placement.yaml
